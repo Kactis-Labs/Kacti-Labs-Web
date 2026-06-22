@@ -1,0 +1,58 @@
+@import "tailwindcss";
+
+@theme {
+  --color-olive: #3D4A31;
+  --color-olive-light: #4e5f3e;
+  --color-olive-dark: #2e381f;
+  --color-dark: #0B0B0B;
+  --color-dark-2: #121212;
+  --color-surface: #F8F9FA;
+  --color-border: #e5e5e5;
+
+  --font-display: 'Space Grotesk', sans-serif;
+  --font-body: 'Inter', sans-serif;
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  font-family: 'Inter', sans-serif;
+  /* White background on html so canvas (fixed, behind) is always visible */
+  background-color: transparent;
+  color: #0B0B0B;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+html {
+  background-color: #ffffff;
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+}
+::-webkit-scrollbar-track {
+  background: #f1f1f1;
+}
+::-webkit-scrollbar-thumb {
+  background: #3D4A31;
+  border-radius: 3px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #2e381f;
+}
+
+/* Selection color */
+::selection {
+  background-color: #3D4A31;
+  color: #ffffff;
+}
