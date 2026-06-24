@@ -1,5 +1,5 @@
 import { useRef } from 'react';
-import { motion, useInView, useScroll, useTransform } from 'framer-motion';
+import { motion, useInView, useScroll, useTransform, useSpring } from 'framer-motion';
 import { MessageSquare, Palette, Code2, Rocket, HeartHandshake } from 'lucide-react';
 
 const STEPS = [
@@ -9,7 +9,6 @@ const STEPS = [
     title: 'Escuchamos tu negocio',
     description:
       'Todo empieza con una conversación. Queremos entender quiénes son tus clientes, qué te diferencia de la competencia y qué esperas de tu nueva web. Sin formularios complicados — solo una charla directa por WhatsApp o videollamada.',
-    duration: 'Día 1',
   },
   {
     id: 2,
@@ -17,7 +16,6 @@ const STEPS = [
     title: 'Diseñamos tu propuesta',
     description:
       'Nuestro equipo crea un diseño a medida que refleja la identidad de tu negocio. Paleta de colores, tipografía, estructura de contenido — todo pensado para generar confianza desde el primer vistazo.',
-    duration: 'Días 2–4',
   },
   {
     id: 3,
@@ -25,7 +23,6 @@ const STEPS = [
     title: 'Desarrollamos con tecnología de punta',
     description:
       'Construimos tu web con herramientas avanzadas de desarrollo para garantizar velocidad, seguridad y una experiencia impecable en todos los dispositivos. Tu web estará optimizada para cargar rápido y posicionarse bien en Google.',
-    duration: 'Días 5–8',
   },
   {
     id: 4,
@@ -33,7 +30,6 @@ const STEPS = [
     title: 'Revisamos y publicamos',
     description:
       'Antes de publicar, revisamos cada detalle contigo. Una vez que apruebes, conectamos tu dominio y lanzamos. Tu negocio ya tiene presencia digital profesional — lista para recibir clientes.',
-    duration: 'Día 9–10',
   },
   {
     id: 5,
@@ -41,21 +37,30 @@ const STEPS = [
     title: 'Soporte continuo',
     description:
       'Publicar es solo el inicio. Con nuestro Plan Tranquilidad Web te aseguramos que tu sitio siempre esté actualizado, seguro y funcionando. Somos el equipo técnico que tu negocio necesita sin tener que contratar a nadie.',
-    duration: 'Ongoing',
   },
 ];
 
-// ── Step Item ─────────────────────────────────────────────────────────────────
-const StepItem = ({ step, index, isLast }) => {
+// ── Scroll-driven timeline step ───────────────────────────────────────────────
+const StepItem = ({ step, index, isLast, sectionProgress }) => {
   const ref = useRef(null);
   const inView = useInView(ref, { once: true, margin: '-80px' });
+
+  // Each step occupies an equal fraction of the scroll range
+  const stepFraction = 1 / STEPS.length;
+  const stepStart = index * stepFraction;
+  const stepEnd = (index + 1) * stepFraction;
+
+  // This step is "done" when scroll has passed its midpoint
+  const stepMid = stepStart + stepFraction * 0.5;
+  // Use a derived motion value to drive the check icon
+  const isDone = useTransform(sectionProgress, (p) => p >= stepMid);
 
   return (
     <motion.div
       ref={ref}
       initial={{ opacity: 0, x: -30 }}
       animate={inView ? { opacity: 1, x: 0 } : {}}
-      transition={{ duration: 0.6, delay: index * 0.1, ease: [0.22, 1, 0.36, 1] }}
+      transition={{ duration: 0.6, delay: index * 0.08, ease: [0.22, 1, 0.36, 1] }}
       style={{
         display: 'flex',
         gap: '24px',
@@ -63,59 +68,100 @@ const StepItem = ({ step, index, isLast }) => {
         position: 'relative',
       }}
     >
-      {/* Vertical line + icon column */}
+      {/* Icon column with scroll-driven connector line */}
       <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', flexShrink: 0 }}>
-        <div style={{
-          width: '52px',
-          height: '52px',
-          borderRadius: '12px',
-          background: inView ? '#0B0B0B' : '#f0f0f0',
-          border: '2px solid #0B0B0B',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          flexShrink: 0,
-          zIndex: 1,
-          transition: 'background 0.4s',
-        }}>
-          <step.icon size={22} color="#8fad6e" />
-        </div>
-        {!isLast && (
-          <motion.div
-            initial={{ scaleY: 0 }}
-            animate={inView ? { scaleY: 1 } : {}}
-            transition={{ duration: 0.5, delay: index * 0.1 + 0.3 }}
+        {/* Step icon — shows checkmark when this step is done */}
+        <motion.div
+          style={{
+            width: '52px',
+            height: '52px',
+            borderRadius: '12px',
+            background: '#0B0B0B',
+            border: '2px solid #0B0B0B',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            flexShrink: 0,
+            zIndex: 1,
+            position: 'relative',
+          }}
+        >
+          {/* Base icon */}
+          <motion.span
+            style={{ position: 'absolute', display: 'flex' }}
+            animate={undefined}
+          >
+            <step.icon size={22} color="#8fad6e" />
+          </motion.span>
+
+          {/* Check overlay — fades in when step is done */}
+          <motion.span
             style={{
-              width: '1px',
-              flex: 1,
-              background: 'linear-gradient(to bottom, #3D4A31, rgba(61,74,49,0.15))',
-              transformOrigin: 'top',
-              marginTop: '8px',
+              position: 'absolute',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              width: '100%',
+              height: '100%',
+              borderRadius: '12px',
+              background: '#3D4A31',
+              opacity: useTransform(sectionProgress, [stepMid - 0.05, stepMid + 0.05], [0, 1]),
             }}
-          />
+          >
+            <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+              <motion.path
+                d="M4 10l4 4 8-8"
+                stroke="#ffffff"
+                strokeWidth="2.5"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                pathLength={useTransform(sectionProgress, [stepMid - 0.05, stepMid + 0.1], [0, 1])}
+              />
+            </svg>
+          </motion.span>
+        </motion.div>
+
+        {/* Connector line between steps — fills with scroll progress */}
+        {!isLast && (
+          <div style={{
+            width: '2px',
+            flex: 1,
+            background: 'rgba(61,74,49,0.12)',
+            borderRadius: '2px',
+            marginTop: '8px',
+            position: 'relative',
+            overflow: 'hidden',
+          }}>
+            <motion.div
+              style={{
+                position: 'absolute',
+                top: 0,
+                left: 0,
+                width: '100%',
+                // Fill from 0% to 100% as scroll goes from this step's start to next step's start
+                height: useTransform(
+                  sectionProgress,
+                  [stepStart, stepEnd],
+                  ['0%', '100%'],
+                ),
+                background: 'linear-gradient(to bottom, #3D4A31, #8fad6e)',
+                borderRadius: '2px',
+              }}
+            />
+          </div>
         )}
       </div>
 
       {/* Content */}
       <div style={{ paddingTop: '10px', paddingBottom: '8px' }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '12px', flexWrap: 'wrap' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '12px' }}>
           <span style={{
             fontFamily: "'Inter', sans-serif",
             fontSize: '11px',
             fontWeight: 700,
-            color: '#3D4A31',
-            letterSpacing: '0.1em',
-            textTransform: 'uppercase',
-            background: 'rgba(61,74,49,0.08)',
-            padding: '3px 10px',
-            borderRadius: '100px',
-          }}>
-            {step.duration}
-          </span>
-          <span style={{
-            fontFamily: "'Inter', sans-serif",
-            fontSize: '12px',
             color: '#aaa',
+            letterSpacing: '0.08em',
+            textTransform: 'uppercase',
           }}>
             Paso {index + 1} de {STEPS.length}
           </span>
@@ -146,14 +192,12 @@ const StepItem = ({ step, index, isLast }) => {
 };
 
 // ── Sticky Visual Panel ───────────────────────────────────────────────────────
-const StickyPanel = () => {
-  const ref = useRef(null);
-  const { scrollYProgress } = useScroll({ target: ref, offset: ['start center', 'end center'] });
-  const lineHeight = useTransform(scrollYProgress, [0, 1], ['0%', '100%']);
+const StickyPanel = ({ sectionProgress }) => {
+  const lineHeight = useTransform(sectionProgress, [0, 1], ['0%', '100%']);
+  const smoothLine = useSpring(lineHeight, { stiffness: 80, damping: 20, mass: 0.5 });
 
   return (
     <div
-      ref={ref}
       style={{
         position: 'sticky',
         top: '100px',
@@ -165,7 +209,6 @@ const StickyPanel = () => {
         flexDirection: 'column',
         alignItems: 'center',
         justifyContent: 'center',
-        gap: '0',
         border: '1px solid rgba(255,255,255,0.08)',
         boxShadow: '0 20px 60px rgba(0,0,0,0.3)',
         overflow: 'hidden',
@@ -185,7 +228,7 @@ const StickyPanel = () => {
         pointerEvents: 'none',
       }} />
 
-      {/* Progress track */}
+      {/* Progress track — scroll driven */}
       <div style={{
         position: 'relative',
         width: '2px',
@@ -199,25 +242,37 @@ const StickyPanel = () => {
           top: 0,
           left: 0,
           width: '100%',
-          height: lineHeight,
+          height: smoothLine,
           background: 'linear-gradient(to bottom, #3D4A31, #8fad6e)',
           borderRadius: '2px',
         }} />
-        {/* Step dots */}
-        {STEPS.map((_, i) => (
-          <div key={i} style={{
-            position: 'absolute',
-            left: '50%',
-            top: `${(i / (STEPS.length - 1)) * 100}%`,
-            transform: 'translate(-50%, -50%)',
-            width: '10px',
-            height: '10px',
-            borderRadius: '50%',
-            background: '#3D4A31',
-            border: '2px solid #0B0B0B',
-            zIndex: 2,
-          }} />
-        ))}
+        {/* Dots with check on completion */}
+        {STEPS.map((_, i) => {
+          const dotProgress = i / (STEPS.length - 1);
+          const dotDone = useTransform(sectionProgress, (p) => p >= dotProgress + 0.05);
+          return (
+            <motion.div
+              key={i}
+              style={{
+                position: 'absolute',
+                left: '50%',
+                top: `${dotProgress * 100}%`,
+                transform: 'translate(-50%, -50%)',
+                width: '12px',
+                height: '12px',
+                borderRadius: '50%',
+                background: useTransform(sectionProgress, (p) =>
+                  p >= dotProgress + 0.05 ? '#8fad6e' : '#3D4A31'
+                ),
+                border: '2px solid #0B0B0B',
+                zIndex: 2,
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+              }}
+            />
+          );
+        })}
       </div>
 
       {/* Labels */}
@@ -243,7 +298,7 @@ const StickyPanel = () => {
         </p>
       </div>
 
-      {/* Bottom stat */}
+      {/* Progress percentage */}
       <div style={{
         marginTop: '32px',
         padding: '14px 24px',
@@ -252,19 +307,22 @@ const StickyPanel = () => {
         borderRadius: '10px',
         textAlign: 'center',
       }}>
-        <span style={{
+        <motion.span style={{
           fontFamily: "'Space Grotesk', sans-serif",
           fontSize: '28px',
           fontWeight: 800,
           color: '#8fad6e',
-        }}>~10 días</span>
+          display: 'block',
+        }}>
+          {useTransform(sectionProgress, (p) => `${Math.round(p * 100)}%`)}
+        </motion.span>
         <p style={{
           fontFamily: "'Inter', sans-serif",
           fontSize: '12px',
           color: 'rgba(255,255,255,0.5)',
           marginTop: '4px',
         }}>
-          de idea a sitio publicado
+          del proceso completado
         </p>
       </div>
     </div>
@@ -273,11 +331,22 @@ const StickyPanel = () => {
 
 // ── Main Section ──────────────────────────────────────────────────────────────
 const Process = () => {
+  const sectionRef = useRef(null);
   const headerRef = useRef(null);
   const headerInView = useInView(headerRef, { once: true, margin: '-80px' });
 
+  // Track scroll progress of the ENTIRE section — from when top enters viewport to bottom exits
+  const { scrollYProgress } = useScroll({
+    target: sectionRef,
+    offset: ['start 80%', 'end 20%'],
+  });
+
+  // Smooth spring so the line follows scroll fluidly
+  const smoothProgress = useSpring(scrollYProgress, { stiffness: 60, damping: 18, mass: 0.8 });
+
   return (
     <section
+      ref={sectionRef}
       id="proceso"
       aria-labelledby="proceso-heading"
       style={{
@@ -321,7 +390,7 @@ const Process = () => {
               marginBottom: '18px',
             }}
           >
-            Simple, rápido{' '}
+            Simple, claro{' '}
             <span style={{ color: '#3D4A31' }}>y sin estrés</span>
           </h2>
           <p style={{
@@ -332,26 +401,27 @@ const Process = () => {
             margin: '0 auto',
             lineHeight: 1.65,
           }}>
-            Un proceso claro para que sepas exactamente qué esperar
+            Un proceso transparente para que sepas exactamente qué esperar
             en cada momento del camino.
           </p>
         </motion.div>
 
         {/* Two-column: sticky visual + steps */}
-        <div style={{
-          display: 'grid',
-          gridTemplateColumns: '1fr 1fr',
-          gap: '64px',
-          alignItems: 'start',
-        }}
+        <div
+          style={{
+            display: 'grid',
+            gridTemplateColumns: '1fr 1fr',
+            gap: '64px',
+            alignItems: 'start',
+          }}
           className="process-grid"
         >
           {/* Sticky visual (left on desktop) */}
           <div className="process-sticky">
-            <StickyPanel />
+            <StickyPanel sectionProgress={smoothProgress} />
           </div>
 
-          {/* Steps (right on desktop) */}
+          {/* Steps with scroll-driven line */}
           <div>
             {STEPS.map((step, i) => (
               <StepItem
@@ -359,6 +429,7 @@ const Process = () => {
                 step={step}
                 index={i}
                 isLast={i === STEPS.length - 1}
+                sectionProgress={smoothProgress}
               />
             ))}
           </div>

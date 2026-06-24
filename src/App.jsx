@@ -7,7 +7,6 @@ import WhyUs from './components/WhyUs';
 import Portfolio from './components/Portfolio';
 import Process from './components/Process';
 import TechStack from './components/TechStack';
-import Tranquilidad from './components/Tranquilidad';
 import FAQ from './components/FAQ';
 import Contact from './components/Contact';
 import Footer from './components/Footer';
@@ -28,7 +27,6 @@ function App() {
           <Portfolio />
           <Process />
           <TechStack />
-          <Tranquilidad />
           <FAQ />
           <Contact />
         </main>
