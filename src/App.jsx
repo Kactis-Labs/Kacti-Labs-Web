@@ -3,6 +3,7 @@ import ParticleCanvas from './components/ParticleCanvas';
 import Navbar from './components/Navbar';
 import Hero from './components/Hero';
 import Services from './components/Services';
+import Tranquilidad from './components/Tranquilidad';
 import WhyUs from './components/WhyUs';
 import Portfolio from './components/Portfolio';
 import Process from './components/Process';
@@ -23,6 +24,7 @@ function App() {
         <main>
           <Hero />
           <Services />
+          <Tranquilidad />
           <WhyUs />
           <Portfolio />
           <Process />

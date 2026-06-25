@@ -412,17 +412,25 @@ const Process = () => {
             display: 'grid',
             gridTemplateColumns: '1fr 1fr',
             gap: '64px',
-            alignItems: 'start',
+            /*
+             * NO alignItems: start — the default 'stretch' is intentional.
+             * It makes the left cell expand to the same height as the right
+             * cell (driven by the 5-step list). Only when the left column
+             * is that tall does position:sticky have room to stay pinned
+             * through all 5 steps.
+             */
           }}
           className="process-grid"
         >
-          {/* Sticky visual (left on desktop) */}
+          {/* LEFT — sticky column. Height = right column height (via grid stretch). */}
           <div className="process-sticky">
             <StickyPanel sectionProgress={smoothProgress} />
           </div>
 
-          {/* Steps with scroll-driven line */}
-          <div>
+          {/* RIGHT — steps list.
+              paddingBottom creates a release buffer: the sticky card
+              glides off gently before the section's bottom edge arrives. */}
+          <div style={{ paddingBottom: '120px' }}>
             {STEPS.map((step, i) => (
               <StepItem
                 key={step.id}
