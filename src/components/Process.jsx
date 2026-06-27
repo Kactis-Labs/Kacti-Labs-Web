@@ -338,7 +338,7 @@ const Process = () => {
   // Track scroll progress of the ENTIRE section — from when top enters viewport to bottom exits
   const { scrollYProgress } = useScroll({
     target: sectionRef,
-    offset: ['start 80%', 'end 20%'],
+    offset: ['start 70%', 'end 90%'],
   });
 
   // Smooth spring so the line follows scroll fluidly

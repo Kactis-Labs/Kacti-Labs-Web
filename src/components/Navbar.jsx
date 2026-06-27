@@ -90,8 +90,7 @@ const Navbar = () => {
           {/* Desktop Nav Links */}
           <nav
             aria-label="Navegación principal"
-            style={{ display: 'flex', gap: '32px', alignItems: 'center' }}
-            className="hidden lg:flex"
+            className="hidden lg:flex items-center gap-[32px]"
           >
             {NAV_LINKS.map((link) => (
               <a

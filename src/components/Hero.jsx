@@ -482,24 +482,24 @@ const Hero = () => {
 
             {/* Mobile badge 1 — top-left (Más clientes) */}
             <div style={{
-              position: 'absolute', top: '14px', left: '14px',
+              position: 'absolute', top: '16px', left: '12px', zIndex: 2,
               animation: 'badge-float-1 3.4s ease-in-out infinite',
             }}>
               <FloatBadge icon="📈" title="Más clientes" subtitle="desde el primer mes" iconBg="rgba(61,74,49,0.1)" size="sm" />
             </div>
 
-            {/* Mobile badge 2 — top-right (Mayor alcance) */}
+            {/* Mobile badge 2 — middle-right (Mayor alcance) */}
             <div style={{
-              position: 'absolute', top: '14px', right: '14px',
+              position: 'absolute', top: '76px', right: '12px', zIndex: 2,
               animation: 'badge-float-3 3.8s ease-in-out infinite',
               animationDelay: '0.9s',
             }}>
               <FloatBadge icon="🚀" title="Mayor alcance" subtitle="en tu sector" iconBg="rgba(239,68,68,0.09)" size="sm" />
             </div>
 
-            {/* Mobile badge 3 — bottom-left (Más presencia) */}
+            {/* Mobile badge 3 — middle-left (Más presencia) */}
             <div style={{
-              position: 'absolute', bottom: '14px', left: '14px',
+              position: 'absolute', bottom: '76px', left: '12px', zIndex: 2,
               animation: 'badge-float-2 4.2s ease-in-out infinite',
               animationDelay: '0.4s',
             }}>
@@ -508,7 +508,7 @@ const Hero = () => {
 
             {/* Mobile badge 4 — bottom-right (Confianza) */}
             <div style={{
-              position: 'absolute', bottom: '14px', right: '14px',
+              position: 'absolute', bottom: '16px', right: '12px', zIndex: 2,
               animation: 'badge-float-1 3.6s ease-in-out infinite',
               animationDelay: '1.5s',
             }}>

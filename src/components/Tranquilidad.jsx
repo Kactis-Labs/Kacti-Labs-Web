@@ -410,6 +410,7 @@ const Tranquilidad = () => {
         @media (max-width: 920px) {
           .tranq-hero-grid {
             grid-template-columns: 1fr !important;
+            padding-top: 40px !important;
           }
           .tranq-hero-grid > div:first-child {
             max-width: 360px;
