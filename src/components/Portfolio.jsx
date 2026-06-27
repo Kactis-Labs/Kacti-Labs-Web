@@ -215,7 +215,17 @@ const Portfolio = () => {
       .order('created_at')
       .then(({ data, error }) => {
         if (!error && data && data.length > 0) {
-          setProjects(data);
+          // If a project from DB has no image_url, try to use the fallback one if names match
+          const mergedData = data.map(dbProject => {
+            if (!dbProject.image_url) {
+              const fallback = FALLBACK_PROJECTS.find(p => p.name === dbProject.name);
+              if (fallback) {
+                return { ...dbProject, image_url: fallback.image_url };
+              }
+            }
+            return dbProject;
+          });
+          setProjects(mergedData);
         }
         // If empty or error → keep FALLBACK_PROJECTS
       });
