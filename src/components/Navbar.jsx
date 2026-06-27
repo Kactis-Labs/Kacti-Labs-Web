@@ -3,6 +3,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { Menu, X, MessageCircle } from 'lucide-react';
 import KactiLogo from './KactiLogo';
 import { getWhatsAppURL } from '../config/env';
+import { useSiteConfig } from '../context/SiteContext';
 
 const NAV_LINKS = [
   { label: 'Servicios', href: '#servicios' },
@@ -12,12 +13,15 @@ const NAV_LINKS = [
   { label: 'FAQ', href: '#faq' },
 ];
 
-const WHATSAPP_URL = getWhatsAppURL();
+
 
 const Navbar = () => {
+  const { config } = useSiteConfig();
   const [scrolled, setScrolled] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
   const [activeSection, setActiveSection] = useState('');
+  
+  const whatsappUrl = getWhatsAppURL(undefined, config.whatsapp_number);
 
   useEffect(() => {
     const onScroll = () => {
@@ -244,7 +248,7 @@ const Navbar = () => {
                   Cotiza tu web ahora
                 </motion.a>
                 <motion.a
-                  href={WHATSAPP_URL}
+                  href={whatsappUrl}
                   target="_blank"
                   rel="noopener noreferrer"
                   initial={{ y: 10, opacity: 0 }}
@@ -277,7 +281,7 @@ const Navbar = () => {
 
       {/* ── FLOATING WHATSAPP BUTTON ── */}
       <motion.a
-        href={WHATSAPP_URL}
+        href={whatsappUrl}
         target="_blank"
         rel="noopener noreferrer"
         aria-label="Contactar por WhatsApp"

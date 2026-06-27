@@ -3,11 +3,10 @@ import { motion, useInView } from 'framer-motion';
 import { MessageCircle, ArrowRight, Mail, Phone, MapPin } from 'lucide-react';
 import { getWhatsAppURL } from '../config/env';
 import { supabase } from '../lib/supabaseClient';
-
-const WHATSAPP_URL = getWhatsAppURL('Hola%2C%20quiero%20cotizar%20mi%20p%C3%A1gina%20web%20con%20Kacti%20Labs');
+import { useSiteConfig } from '../context/SiteContext';
 
 // ── Contact Form (Supabase integration) ──────────────────────────────────────
-const ContactForm = () => {
+const ContactForm = ({ config }) => {
   const [formState, setFormState] = useState({ name: '', email: '', contact_number: '', message: '' });
   const [status, setStatus] = useState('idle'); // idle | sending | success | error
 
@@ -33,7 +32,7 @@ const ContactForm = () => {
       const msg = encodeURIComponent(
         `Hola, soy ${formState.name}.\n${formState.message}`
       );
-      window.open(`https://wa.me/51999999999?text=${msg}`, '_blank');
+      window.open(getWhatsAppURL(msg, config.whatsapp_number), '_blank');
       setStatus('error');
     } else {
       setStatus('success');
@@ -180,10 +179,13 @@ const ContactForm = () => {
 
 // ── Main Section ──────────────────────────────────────────────────────────────
 const Contact = () => {
+  const { config } = useSiteConfig();
   const headerRef = useRef(null);
   const headerInView = useInView(headerRef, { once: true, margin: '-80px' });
   const contentRef = useRef(null);
   const contentInView = useInView(contentRef, { once: true, margin: '-60px' });
+  
+  const whatsappUrl = getWhatsAppURL('Hola%2C%20quiero%20cotizar%20mi%20p%C3%A1gina%20web%20con%20Kacti%20Labs', config.whatsapp_number);
 
   return (
     <section
@@ -288,7 +290,7 @@ const Contact = () => {
 
             {/* WhatsApp CTA */}
             <motion.a
-              href={WHATSAPP_URL}
+              href={whatsappUrl}
               target="_blank"
               rel="noopener noreferrer"
               whileHover={{ scale: 1.03, backgroundColor: '#20b858' }}
@@ -319,9 +321,9 @@ const Contact = () => {
             {/* Contact details */}
             <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
               {[
-                { icon: Mail, label: 'Email', value: 'hola@kactilabs.com' },
-                { icon: Phone, label: 'Teléfono', value: '+51 999 999 999' },
-                { icon: MapPin, label: 'Ubicación', value: 'Lima, Perú' },
+                { icon: Mail, label: 'Email', value: config.contact_email || 'hola@kactilabs.com' },
+                { icon: Phone, label: 'Teléfono', value: config.contact_phone || '+51 999 999 999' },
+                { icon: MapPin, label: 'Ubicación', value: config.location || 'Lima, Perú' },
               ].map(({ icon: Icon, label, value }) => (
                 <div key={label} style={{ display: 'flex', alignItems: 'center', gap: '14px' }}>
                   <div style={{
@@ -356,7 +358,7 @@ const Contact = () => {
             }}>
               Cuéntanos sobre tu proyecto
             </h3>
-            <ContactForm />
+            <ContactForm config={config} />
           </div>
         </motion.div>
       </div>

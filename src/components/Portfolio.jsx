@@ -2,6 +2,8 @@ import { useRef, useState, useEffect } from 'react';
 import { motion, useInView } from 'framer-motion';
 import { ExternalLink } from 'lucide-react';
 import { supabase } from '../lib/supabaseClient';
+import { getWhatsAppURL } from '../config/env';
+import { useSiteConfig } from '../context/SiteContext';
 
 // Fallback hardcodeado — se usa si Supabase está vacío o falla
 const FALLBACK_PROJECTS = [
@@ -198,9 +200,12 @@ const ProjectCard = ({ project, index }) => {
 
 // ── Main Section ──────────────────────────────────────────────────────────────
 const Portfolio = () => {
+  const { config } = useSiteConfig();
   const headerRef = useRef(null);
   const headerInView = useInView(headerRef, { once: true, margin: '-80px' });
   const [projects, setProjects] = useState(FALLBACK_PROJECTS);
+  
+  const whatsappUrl = getWhatsAppURL('Hola%2C%20me%20gustar%C3%ADa%20ver%20c%C3%B3mo%20quedar%C3%ADa%20la%20web%20de%20mi%20negocio', config.whatsapp_number);
 
   useEffect(() => {
     supabase
@@ -305,7 +310,7 @@ const Portfolio = () => {
             ¿Quieres ver cómo quedaría <strong style={{ color: '#0B0B0B' }}>tu negocio</strong>?
           </p>
           <motion.a
-            href="https://wa.me/51999999999?text=Hola%2C%20me%20gustar%C3%ADa%20ver%20c%C3%B3mo%20quedar%C3%ADa%20la%20web%20de%20mi%20negocio"
+            href={whatsappUrl}
             target="_blank"
             rel="noopener noreferrer"
             whileHover={{ backgroundColor: '#3D4A31', scale: 1.03 }}

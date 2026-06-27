@@ -16,6 +16,7 @@ export const ENV = {
 /**
  * Pre-built WhatsApp URL with a default message
  * @param {string} [message] - Optional custom message
+ * @param {string} [number] - Optional custom number to override ENV
  */
-export const getWhatsAppURL = (message = 'Hola%2C%20me%20interesa%20cotizar%20una%20página%20web%20con%20Kacti%20Labs') =>
-  `https://wa.me/${ENV.WHATSAPP_NUMBER}?text=${message}`;
+export const getWhatsAppURL = (message = 'Hola%2C%20me%20interesa%20cotizar%20una%20página%20web%20con%20Kacti%20Labs', number) =>
+  `https://wa.me/${number || ENV.WHATSAPP_NUMBER}?text=${message}`;

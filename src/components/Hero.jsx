@@ -2,8 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 import { motion, useInView } from 'framer-motion';
 import { ArrowRight, MessageCircle } from 'lucide-react';
 import { getWhatsAppURL } from '../config/env';
-
-const WHATSAPP_URL = getWhatsAppURL();
+import { useSiteConfig } from '../context/SiteContext';
 
 // ── Animated Counter ──────────────────────────────────────────────────────────
 const AnimatedCounter = ({ target, suffix = '', duration = 2000, decimals = 0 }) => {
@@ -149,6 +148,8 @@ const BADGE_POS = [
 
 // ── Hero Component ────────────────────────────────────────────────────────────
 const Hero = () => {
+  const { config } = useSiteConfig();
+  const whatsappUrl = getWhatsAppURL(undefined, config.whatsapp_number);
   const containerVariants = {
     hidden: {},
     visible: { transition: { staggerChildren: 0.12 } },
@@ -387,7 +388,7 @@ const Hero = () => {
               </motion.a>
 
               <motion.a
-                href={WHATSAPP_URL}
+                href={whatsappUrl}
                 target="_blank"
                 rel="noopener noreferrer"
                 whileHover={{ backgroundColor: '#f0f4ee', scale: 1.03 }}
