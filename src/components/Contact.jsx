@@ -2,12 +2,13 @@ import { useRef, useState } from 'react';
 import { motion, useInView } from 'framer-motion';
 import { MessageCircle, ArrowRight, Mail, Phone, MapPin } from 'lucide-react';
 import { getWhatsAppURL } from '../config/env';
+import { supabase } from '../lib/supabaseClient';
 
 const WHATSAPP_URL = getWhatsAppURL('Hola%2C%20quiero%20cotizar%20mi%20p%C3%A1gina%20web%20con%20Kacti%20Labs');
 
-// ── Contact Form (UI only — Web3Forms integration pending) ────────────────────
+// ── Contact Form (Supabase integration) ──────────────────────────────────────
 const ContactForm = () => {
-  const [formState, setFormState] = useState({ name: '', email: '', business: '', message: '' });
+  const [formState, setFormState] = useState({ name: '', email: '', contact_number: '', message: '' });
   const [status, setStatus] = useState('idle'); // idle | sending | success | error
 
   const handleChange = (e) => {
@@ -17,15 +18,26 @@ const ContactForm = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setStatus('sending');
-    // Placeholder: Web3Forms will be integrated here
-    // For now, redirect to WhatsApp as fallback
-    setTimeout(() => {
+
+    const { error } = await supabase.from('contacts').insert([
+      {
+        name:           formState.name,
+        email:          formState.email,
+        contact_number: formState.contact_number || null,
+        message:        formState.message,
+      },
+    ]);
+
+    if (error) {
+      console.error('[Supabase] Error al insertar contacto:', error.message);
       const msg = encodeURIComponent(
-        `Hola, soy ${formState.name} de ${formState.business || 'mi negocio'}.\n${formState.message}`
+        `Hola, soy ${formState.name}.\n${formState.message}`
       );
       window.open(`https://wa.me/51999999999?text=${msg}`, '_blank');
+      setStatus('error');
+    } else {
       setStatus('success');
-    }, 800);
+    }
   };
 
   const inputStyle = {
@@ -91,15 +103,15 @@ const ContactForm = () => {
       </div>
 
       <div>
-        <label htmlFor="contact-business" style={{ display: 'block', fontFamily: "'Inter', sans-serif", fontSize: '12px', fontWeight: 600, color: '#555', marginBottom: '6px', letterSpacing: '0.04em' }}>
-          Nombre de tu negocio
+        <label htmlFor="contact-number" style={{ display: 'block', fontFamily: "'Inter', sans-serif", fontSize: '12px', fontWeight: 600, color: '#555', marginBottom: '6px', letterSpacing: '0.04em' }}>
+          Número de contacto
         </label>
         <input
-          id="contact-business"
-          name="business"
-          type="text"
-          placeholder="Ej. Restaurante El Buen Sabor"
-          value={formState.business}
+          id="contact-number"
+          name="contact_number"
+          type="tel"
+          placeholder="Ej. +51 999 999 999"
+          value={formState.contact_number}
           onChange={handleChange}
           onFocus={inputFocus}
           onBlur={inputBlur}
@@ -132,7 +144,7 @@ const ContactForm = () => {
         whileTap={{ scale: 0.98 }}
         style={{
           padding: '15px',
-          background: status === 'success' ? '#3D4A31' : '#0B0B0B',
+          background: status === 'success' ? '#3D4A31' : status === 'error' ? '#b91c1c' : '#0B0B0B',
           color: '#fff',
           border: 'none',
           borderRadius: '8px',
@@ -150,7 +162,7 @@ const ContactForm = () => {
         {status === 'idle' && <><ArrowRight size={16} /> Enviar mensaje</>}
         {status === 'sending' && '⏳ Enviando…'}
         {status === 'success' && '✓ ¡Mensaje enviado! Te contactamos pronto.'}
-        {status === 'error' && 'Error — intenta por WhatsApp'}
+        {status === 'error' && '⚠ Hubo un error — te redirigimos a WhatsApp'}
       </motion.button>
 
       <p style={{ fontFamily: "'Inter', sans-serif", fontSize: '12px', color: '#aaa', textAlign: 'center' }}>

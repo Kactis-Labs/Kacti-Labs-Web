@@ -1,15 +1,17 @@
-import { useRef, useState } from 'react';
+import { useRef, useState, useEffect } from 'react';
 import { motion, useInView } from 'framer-motion';
 import { ExternalLink } from 'lucide-react';
+import { supabase } from '../lib/supabaseClient';
 
-const PROJECTS = [
+// Fallback hardcodeado — se usa si Supabase está vacío o falla
+const FALLBACK_PROJECTS = [
   {
     id: 'restaurant',
     name: 'La Hacienda',
     category: 'Restaurante',
     tag: 'Concepto',
     description: 'Landing page elegante con menú visual y reservas online para restaurante gourmet peruano.',
-    image: '/mockup_restaurant.png',
+    image_url: '/mockup_restaurant.png',
     plan: 'Profesional',
     color: '#1a0f00',
     accent: '#c9883a',
@@ -20,7 +22,7 @@ const PROJECTS = [
     category: 'Clínica dental',
     tag: 'Propuesta de diseño',
     description: 'Web institucional con agenda online y galería de casos para clínica odontológica moderna.',
-    image: '/mockup_dental.png',
+    image_url: '/mockup_dental.png',
     plan: 'Profesional',
     color: '#001f2e',
     accent: '#2eb8b8',
@@ -31,7 +33,7 @@ const PROJECTS = [
     category: 'Centro de fitness',
     tag: 'Concepto',
     description: 'Sitio de alto impacto con planes de membresía y horario de clases para gimnasio premium.',
-    image: '/mockup_fitness.png',
+    image_url: '/mockup_fitness.png',
     plan: 'Premium',
     color: '#0f0f0f',
     accent: '#e85d04',
@@ -42,7 +44,7 @@ const PROJECTS = [
     category: 'Spa & Bienestar',
     tag: 'Propuesta de diseño',
     description: 'Experiencia web serena con galería inmersiva y sistema de reservas para spa de lujo.',
-    image: '/mockup_spa.png',
+    image_url: '/mockup_spa.png',
     plan: 'Profesional',
     color: '#1c2416',
     accent: '#8fad6e',
@@ -84,7 +86,7 @@ const ProjectCard = ({ project, index }) => {
         background: project.color,
       }}>
         <img
-          src={project.image}
+          src={project.image_url}
           alt={`Diseño web ${project.name} — ${project.tag}`}
           loading="lazy"
           style={{
@@ -198,6 +200,21 @@ const ProjectCard = ({ project, index }) => {
 const Portfolio = () => {
   const headerRef = useRef(null);
   const headerInView = useInView(headerRef, { once: true, margin: '-80px' });
+  const [projects, setProjects] = useState(FALLBACK_PROJECTS);
+
+  useEffect(() => {
+    supabase
+      .from('projects')
+      .select('*')
+      .order('sort_order')
+      .order('created_at')
+      .then(({ data, error }) => {
+        if (!error && data && data.length > 0) {
+          setProjects(data);
+        }
+        // If empty or error → keep FALLBACK_PROJECTS
+      });
+  }, []);
 
   return (
     <section
@@ -266,8 +283,8 @@ const Portfolio = () => {
           gridTemplateColumns: 'repeat(auto-fill, minmax(min(100%, 520px), 1fr))',
           gap: '24px',
         }}>
-          {PROJECTS.map((project, i) => (
-            <ProjectCard key={project.id} project={project} index={i} />
+          {projects.map((project, i) => (
+            <ProjectCard key={project.id || i} project={project} index={i} />
           ))}
         </div>
 
