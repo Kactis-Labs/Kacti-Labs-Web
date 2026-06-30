@@ -71,6 +71,9 @@ const ProjectCard = ({ project, index }) => {
   const inView = useInView(ref, { once: true, margin: '-60px' });
   const [hovered, setHovered] = useState(false);
 
+  const ImageWrapper = project.project_url ? 'a' : 'div';
+  const wrapperProps = project.project_url ? { href: project.project_url, target: '_blank', rel: 'noopener noreferrer' } : {};
+
   return (
     <motion.article
       ref={ref}
@@ -92,13 +95,18 @@ const ProjectCard = ({ project, index }) => {
       }}
     >
       {/* Image area */}
-      <div style={{
-        position: 'relative',
-        width: '100%',
-        aspectRatio: '16/10',
-        overflow: 'hidden',
-        background: project.color,
-      }}>
+      <ImageWrapper
+        {...wrapperProps}
+        style={{
+          display: 'block',
+          position: 'relative',
+          width: '100%',
+          aspectRatio: '16/10',
+          overflow: 'hidden',
+          background: project.color,
+          textDecoration: 'none',
+        }}
+      >
         <img
           src={getImageUrl(project.image_url)}
           alt={`Diseño web ${project.name} — ${project.tag}`}
@@ -113,30 +121,32 @@ const ProjectCard = ({ project, index }) => {
         />
 
         {/* Overlay on hover */}
-        <div style={{
-          position: 'absolute',
-          inset: 0,
-          background: `linear-gradient(to top, ${project.color}ee 0%, transparent 60%)`,
-          opacity: hovered ? 1 : 0,
-          transition: 'opacity 0.3s',
-          display: 'flex',
-          alignItems: 'flex-end',
-          padding: '24px',
-        }}>
-          <span style={{
+        {project.project_url && (
+          <div style={{
+            position: 'absolute',
+            inset: 0,
+            background: `linear-gradient(to top, ${project.color}ee 0%, transparent 60%)`,
+            opacity: hovered ? 1 : 0,
+            transition: 'opacity 0.3s',
             display: 'flex',
-            alignItems: 'center',
-            gap: '6px',
-            fontFamily: "'Space Grotesk', sans-serif",
-            fontSize: '13px',
-            fontWeight: 600,
-            color: '#fff',
-            letterSpacing: '0.04em',
+            alignItems: 'flex-end',
+            padding: '24px',
           }}>
-            <ExternalLink size={14} />
-            Ver propuesta completa
-          </span>
-        </div>
+            <span style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: '6px',
+              fontFamily: "'Space Grotesk', sans-serif",
+              fontSize: '13px',
+              fontWeight: 600,
+              color: '#fff',
+              letterSpacing: '0.04em',
+            }}>
+              <ExternalLink size={14} />
+              Ver propuesta completa
+            </span>
+          </div>
+        )}
 
         {/* Tag badge */}
         <div style={{
@@ -172,7 +182,7 @@ const ProjectCard = ({ project, index }) => {
         }}>
           Plan {project.plan}
         </div>
-      </div>
+      </ImageWrapper>
 
       {/* Card content */}
       <div style={{ padding: '24px 28px' }}>
