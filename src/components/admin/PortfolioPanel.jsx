@@ -6,6 +6,18 @@ import { supabase } from '../../lib/supabaseClient';
 
 const BUCKET = 'portfolio-images';
 
+const getImageUrl = (url) => {
+  if (!url) return '';
+  const u = url.toLowerCase();
+  if (u.match(/\.(jpeg|jpg|gif|png|svg|webp)($|\?)/) || u.startsWith('data:image/') || u.includes('supabase.co/storage') || u.includes('image.thum.io')) {
+    return url;
+  }
+  if (u.startsWith('http')) {
+    return `https://image.thum.io/get/width/1200/crop/800/${url}`;
+  }
+  return url;
+};
+
 const EMPTY_FORM = {
   name: '', category: '', tag: 'Concepto', description: '',
   image_url: '', project_url: '', plan: '', color: '#0f0f0f',
@@ -64,16 +76,28 @@ const ProjectModal = ({ project, onClose, onSaved }) => {
     setUploading(true); setUpErr('');
     const ext  = file.name.split('.').pop();
     const path = `project-${Date.now()}.${ext}`;
-    const { data, error } = await supabase.storage.from(BUCKET).upload(path, file, { upsert: true, contentType: file.type });
-    if (error) {
-      // Bucket might not exist yet
-      if (error.message?.includes('Bucket not found') || error.message?.includes('bucket')) {
-        setUpErr('El bucket "portfolio-images" no existe aún. Créalo en Supabase → Storage → New bucket (nombre: portfolio-images, tipo: Public).');
-      } else {
-        setUpErr(`Error al subir: ${error.message}`);
+    let { data, error } = await supabase.storage.from(BUCKET).upload(path, file, { upsert: true, contentType: file.type });
+    
+    if (error && (error.message?.includes('Bucket not found') || error.message?.includes('bucket'))) {
+      // Intentar crear el bucket si no existe
+      const { error: createError } = await supabase.storage.createBucket(BUCKET, { public: true });
+      if (createError) {
+        setUpErr(`No se pudo crear el bucket: ${createError.message}`);
+        setUploading(false); return;
       }
+      // Reintentar subida
+      const retry = await supabase.storage.from(BUCKET).upload(path, file, { upsert: true, contentType: file.type });
+      if (retry.error) {
+        setUpErr(`Error al subir: ${retry.error.message}`);
+        setUploading(false); return;
+      }
+      data = retry.data;
+      error = null;
+    } else if (error) {
+      setUpErr(`Error al subir: ${error.message}`);
       setUploading(false); return;
     }
+    
     const { data: { publicUrl } } = supabase.storage.from(BUCKET).getPublicUrl(data.path);
     setF('image_url', publicUrl);
     setUploading(false);
@@ -84,7 +108,7 @@ const ProjectModal = ({ project, onClose, onSaved }) => {
     setSaving(true);
     const payload = {
       name: form.name.trim(), category: form.category.trim(), tag: form.tag,
-      description: form.description.trim(), image_url: form.image_url || null,
+      description: form.description.trim(), image_url: getImageUrl(form.image_url) || null,
       project_url: form.project_url || null, plan: form.plan || null,
       color: form.color, accent: form.accent, featured: form.featured,
       sort_order: Number(form.sort_order) || 0,
@@ -156,7 +180,7 @@ const ProjectModal = ({ project, onClose, onSaved }) => {
             <div style={{ display:'flex', flexDirection:'column', gap:'10px' }}>
               {form.image_url && (
                 <div style={{ position:'relative', borderRadius:'10px', overflow:'hidden', maxHeight:'160px', background:'#0a0a0a' }}>
-                  <img src={form.image_url} alt="preview" style={{ width:'100%', height:'160px', objectFit:'cover', display:'block' }} />
+                  <img src={getImageUrl(form.image_url)} alt="preview" style={{ width:'100%', height:'160px', objectFit:'cover', display:'block' }} />
                   <button onClick={()=>setF('image_url','')}
                     style={{ position:'absolute', top:'8px', right:'8px', background:'rgba(0,0,0,0.75)', border:'none', color:'#fff', borderRadius:'6px', padding:'4px 8px', cursor:'pointer', fontSize:'12px' }}>
                     Quitar
@@ -300,7 +324,7 @@ const PortfolioPanel = () => {
               {/* Image */}
               <div style={{ height:'140px', background:p.color, position:'relative', overflow:'hidden' }}>
                 {p.image_url ? (
-                  <img src={p.image_url} alt={p.name} style={{ width:'100%', height:'100%', objectFit:'cover', display:'block' }} />
+                  <img src={getImageUrl(p.image_url)} alt={p.name} style={{ width:'100%', height:'100%', objectFit:'cover', display:'block' }} />
                 ) : (
                   <div style={{ display:'flex', alignItems:'center', justifyContent:'center', height:'100%', color:'rgba(255,255,255,0.2)', fontSize:'12px' }}>Sin imagen</div>
                 )}
