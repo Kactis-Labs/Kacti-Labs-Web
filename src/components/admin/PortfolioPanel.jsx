@@ -78,23 +78,12 @@ const ProjectModal = ({ project, onClose, onSaved }) => {
     const path = `project-${Date.now()}.${ext}`;
     let { data, error } = await supabase.storage.from(BUCKET).upload(path, file, { upsert: true, contentType: file.type });
     
-    if (error && (error.message?.includes('Bucket not found') || error.message?.includes('bucket'))) {
-      // Intentar crear el bucket si no existe
-      const { error: createError } = await supabase.storage.createBucket(BUCKET, { public: true });
-      if (createError) {
-        setUpErr(`No se pudo crear el bucket: ${createError.message}`);
-        setUploading(false); return;
+    if (error) {
+      if (error.message?.includes('Bucket not found') || error.message?.includes('bucket')) {
+        setUpErr('El bucket "portfolio-images" no existe aún. Créalo en Supabase → Storage → New bucket (nombre: portfolio-images, tipo: Public).');
+      } else {
+        setUpErr(`Error al subir: ${error.message} (Verifica las políticas RLS en Storage)`);
       }
-      // Reintentar subida
-      const retry = await supabase.storage.from(BUCKET).upload(path, file, { upsert: true, contentType: file.type });
-      if (retry.error) {
-        setUpErr(`Error al subir: ${retry.error.message}`);
-        setUploading(false); return;
-      }
-      data = retry.data;
-      error = null;
-    } else if (error) {
-      setUpErr(`Error al subir: ${error.message}`);
       setUploading(false); return;
     }
     

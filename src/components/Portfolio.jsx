@@ -5,6 +5,18 @@ import { supabase } from '../lib/supabaseClient';
 import { getWhatsAppURL } from '../config/env';
 import { useSiteConfig } from '../context/SiteContext';
 
+const getImageUrl = (url) => {
+  if (!url) return '';
+  const u = url.toLowerCase();
+  if (u.match(/\.(jpeg|jpg|gif|png|svg|webp)($|\?)/) || u.startsWith('data:image/') || u.includes('supabase.co/storage') || u.includes('image.thum.io')) {
+    return url;
+  }
+  if (u.startsWith('http')) {
+    return `https://image.thum.io/get/width/1200/crop/800/${url}`;
+  }
+  return url;
+};
+
 // Fallback hardcodeado — se usa si Supabase está vacío o falla
 const FALLBACK_PROJECTS = [
   {
@@ -88,7 +100,7 @@ const ProjectCard = ({ project, index }) => {
         background: project.color,
       }}>
         <img
-          src={project.image_url}
+          src={getImageUrl(project.image_url)}
           alt={`Diseño web ${project.name} — ${project.tag}`}
           loading="lazy"
           style={{
