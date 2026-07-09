@@ -71,8 +71,13 @@ const ProjectCard = ({ project, index }) => {
   const inView = useInView(ref, { once: true, margin: '-60px' });
   const [hovered, setHovered] = useState(false);
 
+  const ensureAbsoluteUrl = (url) => {
+    if (!url) return '';
+    return url.startsWith('http') ? url : `https://${url}`;
+  };
+
   const ImageWrapper = project.project_url ? 'a' : 'div';
-  const wrapperProps = project.project_url ? { href: project.project_url, target: '_blank', rel: 'noopener noreferrer' } : {};
+  const wrapperProps = project.project_url ? { href: ensureAbsoluteUrl(project.project_url), target: '_blank', rel: 'noopener noreferrer' } : {};
 
   return (
     <motion.article

@@ -27,9 +27,9 @@ const SECTIONS = [
     description: 'Datos visibles en la sección de contacto de la landing page.',
     fields: [
       { key: 'contact_email',  label: 'Email público',          placeholder: 'hola@kactilabs.com',    type: 'email', hint: '' },
-      { key: 'contact_phone',  label: 'Teléfono público',       placeholder: '+51 999 999 999',       type: 'text',  hint: 'Con código de país y formato legible.' },
+      { key: 'contact_phone',  label: 'Teléfono público',       placeholder: '+51 919 506 421',       type: 'text',  hint: 'Con código de país y formato legible.' },
       { key: 'location',       label: 'Ubicación',              placeholder: 'Lima, Perú',            type: 'text',  hint: '' },
-      { key: 'whatsapp_number',label: 'Número WhatsApp',        placeholder: '51999999999',           type: 'text',  hint: 'Sin + ni espacios. Ej: 51987654321' },
+      { key: 'whatsapp_number',label: 'Número WhatsApp',        placeholder: '51919506421',           type: 'text',  hint: 'Sin + ni espacios. Ej: 51919506421' },
     ],
   },
 ];

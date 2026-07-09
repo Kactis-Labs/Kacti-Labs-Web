@@ -109,7 +109,7 @@ const ContactForm = ({ config }) => {
           id="contact-number"
           name="contact_number"
           type="tel"
-          placeholder="Ej. +51 999 999 999"
+          placeholder="Ej. +51 919 506 421"
           value={formState.contact_number}
           onChange={handleChange}
           onFocus={inputFocus}
@@ -322,7 +322,7 @@ const Contact = () => {
             <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
               {[
                 { icon: Mail, label: 'Email', value: config.contact_email || 'hola@kactilabs.com' },
-                { icon: Phone, label: 'Teléfono', value: config.contact_phone || '+51 999 999 999' },
+                { icon: Phone, label: 'Teléfono', value: config.contact_phone || '+51 919 506 421' },
                 { icon: MapPin, label: 'Ubicación', value: config.location || 'Lima, Perú' },
               ].map(({ icon: Icon, label, value }) => (
                 <div key={label} style={{ display: 'flex', alignItems: 'center', gap: '14px' }}>
