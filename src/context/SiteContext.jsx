@@ -36,7 +36,7 @@ export const SiteProvider = ({ children }) => {
     if (config.site_title) {
       document.title = config.site_title;
     }
-    
+
     if (config.site_description) {
       let metaDesc = document.querySelector('meta[name="description"]');
       if (!metaDesc) {
@@ -46,7 +46,7 @@ export const SiteProvider = ({ children }) => {
       }
       metaDesc.content = config.site_description;
     }
-    
+
     // Optional: Open Graph description
     if (config.og_description) {
       let metaOgDesc = document.querySelector('meta[property="og:description"]');
@@ -56,7 +56,7 @@ export const SiteProvider = ({ children }) => {
         document.head.appendChild(metaOgDesc);
       }
       metaOgDesc.content = config.og_description;
-      
+
       let metaOgTitle = document.querySelector('meta[property="og:title"]');
       if (!metaOgTitle && config.site_title) {
         metaOgTitle = document.createElement('meta');
@@ -64,7 +64,7 @@ export const SiteProvider = ({ children }) => {
         document.head.appendChild(metaOgTitle);
       }
       if (metaOgTitle && config.site_title) {
-         metaOgTitle.content = config.site_title;
+        metaOgTitle.content = config.site_title;
       }
     }
   }, [config]);
@@ -76,6 +76,7 @@ export const SiteProvider = ({ children }) => {
   );
 };
 
+// eslint-disable-next-line react-refresh/only-export-components
 export const useSiteConfig = () => {
   return useContext(SiteContext);
 };

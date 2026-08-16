@@ -1,3 +1,4 @@
+import { lazy, Suspense } from 'react';
 import { Routes, Route } from 'react-router-dom';
 import './index.css';
 
@@ -15,10 +16,27 @@ import FAQ from './components/FAQ';
 import Contact from './components/Contact';
 import Footer from './components/Footer';
 
-// Admin
-import PrivateRoute   from './components/admin/PrivateRoute';
-import AdminLogin     from './pages/AdminLogin';
-import AdminDashboard from './pages/AdminDashboard';
+// Admin — Lazy loaded for code splitting
+import PrivateRoute from './components/admin/PrivateRoute';
+const AdminLogin     = lazy(() => import('./pages/AdminLogin'));
+const AdminDashboard = lazy(() => import('./pages/AdminDashboard'));
+
+// ── Admin Loading Fallback ───────────────────────────────────────────────────
+const AdminLoading = () => (
+  <div style={{
+    minHeight: '100vh',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    background: '#0a0a0a',
+    color: '#8fad6e',
+    fontFamily: "'Inter', sans-serif",
+    fontSize: '14px',
+    letterSpacing: '0.06em',
+  }}>
+    Cargando panel…
+  </div>
+);
 
 // ── Landing layout ────────────────────────────────────────────────────────────
 const LandingPage = () => (
@@ -48,11 +66,13 @@ const LandingPage = () => (
 // ── App with routing ──────────────────────────────────────────────────────────
 function App() {
   return (
-    <Routes>
-      <Route path="/"             element={<LandingPage />} />
-      <Route path="/admin/login"  element={<AdminLogin />} />
-      <Route path="/admin"        element={<PrivateRoute><AdminDashboard /></PrivateRoute>} />
-    </Routes>
+    <Suspense fallback={<AdminLoading />}>
+      <Routes>
+        <Route path="/"             element={<LandingPage />} />
+        <Route path="/admin/login"  element={<AdminLogin />} />
+        <Route path="/admin"        element={<PrivateRoute><AdminDashboard /></PrivateRoute>} />
+      </Routes>
+    </Suspense>
   );
 }
 

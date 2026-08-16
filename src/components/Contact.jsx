@@ -20,10 +20,10 @@ const ContactForm = ({ config }) => {
 
     const { error } = await supabase.from('contacts').insert([
       {
-        name:           formState.name,
-        email:          formState.email,
+        name: formState.name,
+        email: formState.email,
         contact_number: formState.contact_number || null,
-        message:        formState.message,
+        message: formState.message,
       },
     ]);
 
@@ -109,7 +109,7 @@ const ContactForm = ({ config }) => {
           id="contact-number"
           name="contact_number"
           type="tel"
-          placeholder="Ej. +51 919 506 421"
+          placeholder="Ej. +51 999 999 999"
           value={formState.contact_number}
           onChange={handleChange}
           onFocus={inputFocus}
@@ -184,7 +184,7 @@ const Contact = () => {
   const headerInView = useInView(headerRef, { once: true, margin: '-80px' });
   const contentRef = useRef(null);
   const contentInView = useInView(contentRef, { once: true, margin: '-60px' });
-  
+
   const whatsappUrl = getWhatsAppURL('Hola%2C%20quiero%20cotizar%20mi%20p%C3%A1gina%20web%20con%20Kacti%20Labs', config.whatsapp_number);
 
   return (
@@ -322,7 +322,7 @@ const Contact = () => {
             <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
               {[
                 { icon: Mail, label: 'Email', value: config.contact_email || 'hola@kactilabs.com' },
-                { icon: Phone, label: 'Teléfono', value: config.contact_phone || '+51 919 506 421' },
+                { icon: Phone, label: 'Teléfono', value: config.contact_phone || '+51 999 999 999' },
                 { icon: MapPin, label: 'Ubicación', value: config.location || 'Lima, Perú' },
               ].map(({ icon: Icon, label, value }) => (
                 <div key={label} style={{ display: 'flex', alignItems: 'center', gap: '14px' }}>

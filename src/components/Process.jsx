@@ -49,11 +49,12 @@ const StepItem = ({ step, index, isLast, sectionProgress }) => {
   const stepFraction = 1 / STEPS.length;
   const stepStart = index * stepFraction;
   const stepEnd = (index + 1) * stepFraction;
-
-  // This step is "done" when scroll has passed its midpoint
   const stepMid = stepStart + stepFraction * 0.5;
-  // Use a derived motion value to drive the check icon
-  const isDone = useTransform(sectionProgress, (p) => p >= stepMid);
+
+  // Unconditional top-level hook declarations for motion transforms
+  const checkOpacity = useTransform(sectionProgress, [stepMid - 0.05, stepMid + 0.05], [0, 1]);
+  const checkPathLength = useTransform(sectionProgress, [stepMid - 0.05, stepMid + 0.1], [0, 1]);
+  const lineHeight = useTransform(sectionProgress, [stepStart, stepEnd], ['0%', '100%']);
 
   return (
     <motion.div
@@ -89,7 +90,6 @@ const StepItem = ({ step, index, isLast, sectionProgress }) => {
           {/* Base icon */}
           <motion.span
             style={{ position: 'absolute', display: 'flex' }}
-            animate={undefined}
           >
             <step.icon size={22} color="#8fad6e" />
           </motion.span>
@@ -105,7 +105,7 @@ const StepItem = ({ step, index, isLast, sectionProgress }) => {
               height: '100%',
               borderRadius: '12px',
               background: '#3D4A31',
-              opacity: useTransform(sectionProgress, [stepMid - 0.05, stepMid + 0.05], [0, 1]),
+              opacity: checkOpacity,
             }}
           >
             <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
@@ -115,7 +115,7 @@ const StepItem = ({ step, index, isLast, sectionProgress }) => {
                 strokeWidth="2.5"
                 strokeLinecap="round"
                 strokeLinejoin="round"
-                pathLength={useTransform(sectionProgress, [stepMid - 0.05, stepMid + 0.1], [0, 1])}
+                pathLength={checkPathLength}
               />
             </svg>
           </motion.span>
@@ -138,12 +138,7 @@ const StepItem = ({ step, index, isLast, sectionProgress }) => {
                 top: 0,
                 left: 0,
                 width: '100%',
-                // Fill from 0% to 100% as scroll goes from this step's start to next step's start
-                height: useTransform(
-                  sectionProgress,
-                  [stepStart, stepEnd],
-                  ['0%', '100%'],
-                ),
+                height: lineHeight,
                 background: 'linear-gradient(to bottom, #3D4A31, #8fad6e)',
                 borderRadius: '2px',
               }}
@@ -188,6 +183,51 @@ const StepItem = ({ step, index, isLast, sectionProgress }) => {
         </p>
       </div>
     </motion.div>
+  );
+};
+
+// ── Subcomponent for progress dot ──────────────────────────────────────────────
+const StepDot = ({ index, total, sectionProgress }) => {
+  const dotProgress = index / (total - 1);
+  const dotBg = useTransform(sectionProgress, (p) =>
+    p >= dotProgress + 0.05 ? '#8fad6e' : '#3D4A31'
+  );
+
+  return (
+    <motion.div
+      style={{
+        position: 'absolute',
+        left: '50%',
+        top: `${dotProgress * 100}%`,
+        transform: 'translate(-50%, -50%)',
+        width: '12px',
+        height: '12px',
+        borderRadius: '50%',
+        background: dotBg,
+        border: '2px solid #0B0B0B',
+        zIndex: 2,
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+      }}
+    />
+  );
+};
+
+// ── Subcomponent for percentage counter ───────────────────────────────────────
+const ProgressPercentage = ({ sectionProgress }) => {
+  const percentText = useTransform(sectionProgress, (p) => `${Math.round(p * 100)}%`);
+
+  return (
+    <motion.span style={{
+      fontFamily: "'Space Grotesk', sans-serif",
+      fontSize: '28px',
+      fontWeight: 800,
+      color: '#8fad6e',
+      display: 'block',
+    }}>
+      {percentText}
+    </motion.span>
   );
 };
 
@@ -247,32 +287,9 @@ const StickyPanel = ({ sectionProgress }) => {
           borderRadius: '2px',
         }} />
         {/* Dots with check on completion */}
-        {STEPS.map((_, i) => {
-          const dotProgress = i / (STEPS.length - 1);
-          const dotDone = useTransform(sectionProgress, (p) => p >= dotProgress + 0.05);
-          return (
-            <motion.div
-              key={i}
-              style={{
-                position: 'absolute',
-                left: '50%',
-                top: `${dotProgress * 100}%`,
-                transform: 'translate(-50%, -50%)',
-                width: '12px',
-                height: '12px',
-                borderRadius: '50%',
-                background: useTransform(sectionProgress, (p) =>
-                  p >= dotProgress + 0.05 ? '#8fad6e' : '#3D4A31'
-                ),
-                border: '2px solid #0B0B0B',
-                zIndex: 2,
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-              }}
-            />
-          );
-        })}
+        {STEPS.map((_, i) => (
+          <StepDot key={i} index={i} total={STEPS.length} sectionProgress={sectionProgress} />
+        ))}
       </div>
 
       {/* Labels */}
@@ -307,15 +324,7 @@ const StickyPanel = ({ sectionProgress }) => {
         borderRadius: '10px',
         textAlign: 'center',
       }}>
-        <motion.span style={{
-          fontFamily: "'Space Grotesk', sans-serif",
-          fontSize: '28px',
-          fontWeight: 800,
-          color: '#8fad6e',
-          display: 'block',
-        }}>
-          {useTransform(sectionProgress, (p) => `${Math.round(p * 100)}%`)}
-        </motion.span>
+        <ProgressPercentage sectionProgress={sectionProgress} />
         <p style={{
           fontFamily: "'Inter', sans-serif",
           fontSize: '12px',
@@ -412,13 +421,6 @@ const Process = () => {
             display: 'grid',
             gridTemplateColumns: '1fr 1fr',
             gap: '64px',
-            /*
-             * NO alignItems: start — the default 'stretch' is intentional.
-             * It makes the left cell expand to the same height as the right
-             * cell (driven by the 5-step list). Only when the left column
-             * is that tall does position:sticky have room to stay pinned
-             * through all 5 steps.
-             */
           }}
           className="process-grid"
         >
@@ -427,9 +429,7 @@ const Process = () => {
             <StickyPanel sectionProgress={smoothProgress} />
           </div>
 
-          {/* RIGHT — steps list.
-              paddingBottom creates a release buffer: the sticky card
-              glides off gently before the section's bottom edge arrives. */}
+          {/* RIGHT — steps list. */}
           <div style={{ paddingBottom: '120px' }}>
             {STEPS.map((step, i) => (
               <StepItem

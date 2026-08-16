@@ -1,7 +1,5 @@
 import { motion } from 'framer-motion';
-import { ArrowRight } from 'lucide-react';
 import KactiLogo from './KactiLogo';
-import { getWhatsAppURL } from '../config/env';
 
 // Inline SVGs for brand icons as they were removed from lucide-react
 const InstagramIcon = ({ size }) => (

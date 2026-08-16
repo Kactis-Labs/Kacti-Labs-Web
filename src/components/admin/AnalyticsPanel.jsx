@@ -19,7 +19,6 @@ const STATUS_COLOR = {
 // ── Bar Chart (pure SVG) ──────────────────────────────────────────────────────
 const BarChart = ({ data, color = '#8fad6e', height = 140, label }) => {
   const max = Math.max(...data.map(d => d.value), 1);
-  const W = 100 / data.length;
 
   return (
     <div>

@@ -113,7 +113,7 @@ const TranquilidadPlan = ({ plan, index }) => {
         <span style={{ fontFamily: "'Inter', sans-serif", fontSize: '13px', color: plan.highlighted ? 'rgba(255,255,255,0.45)' : '#999' }}>/mes</span>
       </div>
       <p style={{ fontFamily: "'Inter', sans-serif", fontSize: '11px', color: plan.highlighted ? 'rgba(255,255,255,0.4)' : '#bbb', marginBottom: '24px' }}>
-        Incluye IGV · Sin permanencia
+        Con comprobante de pago · Sin permanencia
       </p>
 
       <ul style={{ listStyle: 'none', padding: 0, margin: 0, display: 'flex', flexDirection: 'column', gap: '10px' }}>
@@ -141,8 +141,6 @@ const TranquilidadPlan = ({ plan, index }) => {
 const Tranquilidad = () => {
   const headerRef   = useRef(null);
   const headerInView = useInView(headerRef, { once: true, margin: '-80px' });
-  const plansRef    = useRef(null);
-  const plansInView = useInView(plansRef, { once: true, margin: '-60px' });
 
   return (
     <section
@@ -333,7 +331,6 @@ const Tranquilidad = () => {
 
           {/* Plans grid */}
           <div
-            ref={plansRef}
             style={{
               display: 'flex',
               gap: '20px',

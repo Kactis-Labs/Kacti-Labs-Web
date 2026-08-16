@@ -10,7 +10,7 @@ export const ENV = {
   WEB3FORMS_KEY: import.meta.env.VITE_WEB3FORMS_KEY || '',
 
   /** WhatsApp phone number in international format without + or spaces */
-  WHATSAPP_NUMBER: import.meta.env.VITE_WHATSAPP_NUMBER || '51919506421',
+  WHATSAPP_NUMBER: import.meta.env.VITE_WHATSAPP_NUMBER || '51999999999',
 };
 
 /**

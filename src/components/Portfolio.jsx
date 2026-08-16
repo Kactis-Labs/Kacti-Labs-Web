@@ -71,13 +71,18 @@ const ProjectCard = ({ project, index }) => {
   const inView = useInView(ref, { once: true, margin: '-60px' });
   const [hovered, setHovered] = useState(false);
 
-  const ensureAbsoluteUrl = (url) => {
-    if (!url) return '';
-    return url.startsWith('http') ? url : `https://${url}`;
+  const sanitizeProjectUrl = (url) => {
+    if (!url || typeof url !== 'string') return '';
+    const trimmed = url.trim();
+    if (trimmed.startsWith('javascript:') || trimmed.startsWith('data:') || trimmed.startsWith('vbscript:')) {
+      return '';
+    }
+    return trimmed.startsWith('http://') || trimmed.startsWith('https://') ? trimmed : `https://${trimmed}`;
   };
 
-  const ImageWrapper = project.project_url ? 'a' : 'div';
-  const wrapperProps = project.project_url ? { href: ensureAbsoluteUrl(project.project_url), target: '_blank', rel: 'noopener noreferrer' } : {};
+  const safeUrl = sanitizeProjectUrl(project.project_url);
+  const ImageWrapper = safeUrl ? 'a' : 'div';
+  const wrapperProps = safeUrl ? { href: safeUrl, target: '_blank', rel: 'noopener noreferrer' } : {};
 
   return (
     <motion.article
@@ -126,7 +131,7 @@ const ProjectCard = ({ project, index }) => {
         />
 
         {/* Overlay on hover */}
-        {project.project_url && (
+        {safeUrl && (
           <div style={{
             position: 'absolute',
             inset: 0,

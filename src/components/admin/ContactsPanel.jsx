@@ -22,14 +22,22 @@ const fmtDateShort = (iso) => {
   return new Date(iso).toLocaleDateString('es-PE', { day: '2-digit', month: 'short', year: 'numeric' });
 };
 
+const sanitizeCSV = (val) => {
+  let str = String(val || '');
+  if (/^[=+\-@\t\r]/.test(str)) {
+    str = "'" + str;
+  }
+  return `"${str.replace(/"/g, '""')}"`;
+};
+
 const exportCSV = (rows) => {
   const h = ['ID', 'Nombre', 'Email', 'Número', 'Mensaje', 'Estado', 'Fecha'];
   const csv = [h.join(','), ...rows.map(r => [
     r.id,
-    `"${(r.name||'').replace(/"/g,'""')}"`,
-    `"${(r.email||'').replace(/"/g,'""')}"`,
-    `"${(r.contact_number||'').replace(/"/g,'""')}"`,
-    `"${(r.message||'').replace(/"/g,'""')}"`,
+    sanitizeCSV(r.name),
+    sanitizeCSV(r.email),
+    sanitizeCSV(r.contact_number),
+    sanitizeCSV(r.message),
     r.status, fmtDate(r.created_at),
   ].join(','))].join('\n');
   const blob = new Blob(['\uFEFF'+csv], { type: 'text/csv;charset=utf-8;' });
@@ -241,7 +249,19 @@ const ContactsPanel = () => {
     setLoading(false);
   }, [sortDir]);
 
-  useEffect(() => { fetchContacts(); }, [fetchContacts]);
+  useEffect(() => {
+    let active = true;
+    const load = async () => {
+      setLoading(true);
+      const { data } = await supabase.from('contacts').select('*').order('created_at', { ascending: sortDir === 'asc' });
+      if (active) {
+        setContacts(data || []);
+        setLoading(false);
+      }
+    };
+    load();
+    return () => { active = false; };
+  }, [sortDir]);
 
   const filtered = useMemo(() => {
     let rows = contacts;
@@ -295,7 +315,7 @@ const ContactsPanel = () => {
           { label:'Contactados',    val:counters.contactado,  ...STATUS_STYLE['Contactado']     },
           { label:'En negociación', val:counters.negociacion, ...STATUS_STYLE['En negociación'] },
           { label:'Cerrados',       val:counters.cerrado,     ...STATUS_STYLE['Cerrado']        },
-        ].map(({ label, val, bg, color }) => (
+        ].map(({ label, val, color }) => (
           <div key={label} style={{ background:s.surface, border:`1px solid ${s.border}`, borderRadius:'12px', padding:'16px 18px' }}>
             <div style={{ fontSize:'10px', color:s.muted, textTransform:'uppercase', letterSpacing:'0.07em', marginBottom:'8px' }}>{label}</div>
             <div style={{ fontFamily:s.fontH, fontSize:'28px', fontWeight:700, color, lineHeight:1 }}>{loading ? '—' : val}</div>

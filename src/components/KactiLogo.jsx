@@ -1,5 +1,5 @@
 // Kacti Labs Logo — SVG isotipo fiel al logo original (cactus minimalista con líneas)
-const KactiLogo = ({ className = '', textColor = '#0B0B0B', iconColor = '#3D4A31', showText = true, size = 'md' }) => {
+const KactiLogo = ({ className = '', textColor = '#0B0B0B', showText = true, size = 'md' }) => {
   const sizes = {
     sm: { icon: 28, fontSize: '14px', letterSpacing: '0.08em' },
     md: { icon: 36, fontSize: '17px', letterSpacing: '0.09em' },
@@ -8,7 +8,7 @@ const KactiLogo = ({ className = '', textColor = '#0B0B0B', iconColor = '#3D4A31
   const s = sizes[size] || sizes.md;
 
   return (
-    <div className="flex items-center gap-2.5" style={{ userSelect: 'none' }}>
+    <div className={`flex items-center gap-2.5 ${className}`.trim()} style={{ userSelect: 'none' }}>
       {/* Cactus icon — kacti-icon-only.svg (viewBox tightly cropped to content) */}
       <img
         src="/kacti-icon-only.svg"

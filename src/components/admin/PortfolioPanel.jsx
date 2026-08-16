@@ -1,6 +1,6 @@
 // src/components/admin/PortfolioPanel.jsx
 // CRUD completo de proyectos + subida de imágenes a Supabase Storage
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { supabase } from '../../lib/supabaseClient';
 
@@ -279,14 +279,26 @@ const PortfolioPanel = () => {
   const [loading, setLoading]   = useState(true);
   const [modal, setModal]       = useState(null); // null | { type:'new'|'edit'|'delete', project? }
 
-  const fetch = async () => {
+  const fetch = useCallback(async () => {
     setLoading(true);
     const { data } = await supabase.from('projects').select('*').order('sort_order').order('created_at');
     setProjects(data || []);
     setLoading(false);
-  };
+  }, []);
 
-  useEffect(() => { fetch(); }, []);
+  useEffect(() => {
+    let active = true;
+    const load = async () => {
+      setLoading(true);
+      const { data } = await supabase.from('projects').select('*').order('sort_order').order('created_at');
+      if (active) {
+        setProjects(data || []);
+        setLoading(false);
+      }
+    };
+    load();
+    return () => { active = false; };
+  }, []);
 
   const closeAndRefresh = () => { setModal(null); fetch(); };
 

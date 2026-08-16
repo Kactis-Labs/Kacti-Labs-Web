@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import { motion, useInView } from 'framer-motion';
-import { ArrowRight, MessageCircle } from 'lucide-react';
+import { ArrowRight, MessageCircle, BarChart3, Eye, Zap } from 'lucide-react';
 import { getWhatsAppURL } from '../config/env';
 import { useSiteConfig } from '../context/SiteContext';
 
@@ -30,132 +30,92 @@ const AnimatedCounter = ({ target, suffix = '', duration = 2000, decimals = 0 })
   );
 };
 
-// ── Stat Card ─────────────────────────────────────────────────────────────────
-const StatCard = ({ value, suffix, label, delay }) => (
+// ── Premium Right-Side Stat Card ──────────────────────────────────────────────
+const RightStatCard = ({ icon: Icon, value, suffix, label, delay, isStatic, staticValue }) => (
   <motion.div
-    initial={{ opacity: 0, y: 30 }}
-    animate={{ opacity: 1, y: 0 }}
+    initial={{ opacity: 0, x: 30 }}
+    animate={{ opacity: 1, x: 0 }}
     transition={{ delay, duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
+    whileHover={{ y: -4, borderColor: 'rgba(61,74,49,0.3)', boxShadow: '0 16px 36px rgba(0,0,0,0.08)' }}
     style={{
-      flex: '1 1 160px',
-      padding: '22px 20px',
-      background: 'rgba(255,255,255,0.7)',
-      backdropFilter: 'blur(12px)',
+      padding: '24px 28px',
+      background: 'rgba(255,255,255,0.85)',
+      backdropFilter: 'blur(16px)',
       border: '1px solid rgba(0,0,0,0.08)',
-      borderRadius: '12px',
-      textAlign: 'center',
-      position: 'relative',
-      overflow: 'hidden',
-    }}
-    className="stat-card"
-  >
-    <div style={{ position: 'absolute', top: 0, left: '20%', right: '20%', height: '2px', background: '#3D4A31', borderRadius: '0 0 2px 2px' }} />
-    <div style={{
-      fontFamily: "'Space Grotesk', sans-serif",
-      fontSize: 'clamp(28px, 4vw, 44px)',
-      fontWeight: 700,
-      color: '#0B0B0B',
-      lineHeight: 1,
-      marginBottom: '8px',
-    }}>
-      <AnimatedCounter target={value} suffix={suffix} duration={2200} />
-    </div>
-    <p style={{
-      fontFamily: "'Inter', sans-serif",
-      fontSize: '12px',
-      fontWeight: 400,
-      color: '#555',
-      lineHeight: 1.5,
-      maxWidth: '180px',
-      margin: '0 auto',
-    }}>
-      {label}
-    </p>
-  </motion.div>
-);
-
-// ── Float Badge ───────────────────────────────────────────────────────────────
-// Reusable white-card badge — same style as 98/100 PageSpeed
-const FloatBadge = ({
-  icon,
-  title,
-  subtitle,
-  iconBg = 'rgba(61,74,49,0.1)',
-  size = 'md',   // 'md' | 'sm'
-}) => {
-  const pad   = size === 'sm' ? '8px 12px'  : '11px 16px';
-  const icoSz = size === 'sm' ? '26px'      : '32px';
-  const icoR  = size === 'sm' ? '7px'       : '9px';
-  const icoFs = size === 'sm' ? '13px'      : '16px';
-  const titFs = size === 'sm' ? '12px'      : '14px';
-  const subFs = size === 'sm' ? '10px'      : '11px';
-  const gap   = size === 'sm' ? '8px'       : '10px';
-  const bdr   = size === 'sm' ? '10px'      : '12px';
-
-  return (
-    <div style={{
-      background: '#fff',
-      borderRadius: bdr,
-      padding: pad,
-      boxShadow: '0 10px 40px rgba(0,0,0,0.13), 0 1px 0 rgba(255,255,255,0.9) inset',
-      border: '1px solid rgba(0,0,0,0.07)',
+      borderRadius: '16px',
       display: 'flex',
       alignItems: 'center',
-      gap,
-      whiteSpace: 'nowrap',
+      gap: '20px',
+      boxShadow: '0 4px 24px rgba(0,0,0,0.04)',
+      position: 'relative',
+      overflow: 'hidden',
+      transition: 'all 0.25s ease',
+    }}
+  >
+    {/* Left accent indicator */}
+    <div style={{
+      position: 'absolute',
+      left: 0,
+      top: '15%',
+      bottom: '15%',
+      width: '4px',
+      background: '#3D4A31',
+      borderRadius: '0 4px 4px 0',
+    }} />
+
+    {/* Icon badge */}
+    <div style={{
+      width: '48px',
+      height: '48px',
+      borderRadius: '12px',
+      background: 'rgba(61,74,49,0.08)',
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'center',
+      flexShrink: 0,
     }}>
-      <div style={{
-        width: icoSz, height: icoSz,
-        borderRadius: icoR,
-        background: iconBg,
-        display: 'flex', alignItems: 'center', justifyContent: 'center',
-        fontSize: icoFs,
-        flexShrink: 0,
-      }}>
-        {icon}
-      </div>
-      <div>
-        <div style={{
-          fontFamily: "'Space Grotesk', sans-serif",
-          fontSize: titFs, fontWeight: 700, color: '#0B0B0B', lineHeight: 1,
-        }}>{title}</div>
-        <div style={{
-          fontFamily: "'Inter', sans-serif",
-          fontSize: subFs, color: '#888', lineHeight: 1.3, marginTop: '3px',
-        }}>{subtitle}</div>
-      </div>
+      <Icon size={22} color="#3D4A31" />
     </div>
-  );
-};
 
-// Badge data — all share the white-card style; texts renewed
-const BADGES = [
-  { icon: '📈', title: 'Más clientes',    subtitle: 'desde el primer mes', iconBg: 'rgba(61,74,49,0.1)',  anim: 'badge-float-1', dur: '3.4s', delay: '0s'   },
-  { icon: '🌐', title: 'Más presencia',   subtitle: 'en tu mercado',       iconBg: 'rgba(59,130,246,0.1)', anim: 'badge-float-2', dur: '4.2s', delay: '0.6s' },
-  { icon: '🚀', title: 'Mayor alcance',   subtitle: 'en tu sector',        iconBg: 'rgba(239,68,68,0.09)', anim: 'badge-float-3', dur: '3.8s', delay: '1.2s' },
-  { icon: '⭐', title: 'Confianza',       subtitle: 'en tu negocio',       iconBg: 'rgba(245,158,11,0.1)', anim: 'badge-float-1', dur: '3.6s', delay: '1.8s' },
-];
-
-// Desktop positions: clustered around the laptop/keyboard area
-// Reference: "+2.4× más clientes" was at bottom:24%, right:16%
-// New cluster spreads to the left of that anchor
-const BADGE_POS = [
-  { bottom: '42%', right: '40%' },   // upper-left  — above laptop screen
-  { bottom: '36%', right: '20%' },   // upper-right — laptop top edge
-  { bottom: '22%', right: '32%' },   // lower-left  — near keyboard
-  { bottom: '16%', right: '14%' },   // lower-right — hands/trackpad
-];
+    {/* Values & Label */}
+    <div>
+      <div style={{
+        fontFamily: "'Space Grotesk', sans-serif",
+        fontSize: 'clamp(28px, 3.5vw, 36px)',
+        fontWeight: 800,
+        color: '#0B0B0B',
+        lineHeight: 1,
+        marginBottom: '6px',
+        letterSpacing: '-0.02em',
+      }}>
+        {isStatic ? staticValue : <AnimatedCounter target={value} suffix={suffix} duration={2200} />}
+      </div>
+      <p style={{
+        fontFamily: "'Inter', sans-serif",
+        fontSize: '13px',
+        fontWeight: 450,
+        color: '#555',
+        lineHeight: 1.45,
+        margin: 0,
+      }}>
+        {label}
+      </p>
+    </div>
+  </motion.div>
+);
 
 // ── Hero Component ────────────────────────────────────────────────────────────
 const Hero = () => {
   const { config } = useSiteConfig();
   const whatsappUrl = getWhatsAppURL(undefined, config.whatsapp_number);
+
   const containerVariants = {
     hidden: {},
     visible: { transition: { staggerChildren: 0.12 } },
   };
+
   const itemVariants = {
-    hidden: { opacity: 0, y: 40 },
+    hidden: { opacity: 0, y: 30 },
     visible: { opacity: 1, y: 0, transition: { duration: 0.7, ease: [0.22, 1, 0.36, 1] } },
   };
 
@@ -167,114 +127,39 @@ const Hero = () => {
         position: 'relative',
         minHeight: '100vh',
         display: 'flex',
-        alignItems: 'stretch',
+        alignItems: 'center',
         overflow: 'hidden',
         zIndex: 1,
+        paddingTop: '100px',
+        paddingBottom: '80px',
       }}
     >
-      {/* ─────────────────────────────────────────────────────────────────────
-          DESKTOP ONLY — Hero photo, full height, anchored to the right
-      ──────────────────────────────────────────────────────────────────────── */}
-      <div
-        aria-hidden="true"
-        className="hero-image-desktop"
-        style={{
-          position: 'absolute',
-          top: 0, right: 0,
-          width: '75%',
-          height: '100%',
-          zIndex: 0,
-        }}
-      >
-        <img
-          src="/hero-person.png"
-          alt=""
-          aria-hidden="true"
-          style={{
-            width: '100%', height: '100%',
-            objectFit: 'cover',
-            objectPosition: 'center top',
-            display: 'block',
-          }}
-        />
-        {/* Left-edge blend: white → transparent */}
-        <div aria-hidden="true" style={{
-          position: 'absolute', inset: 0,
-          background: 'linear-gradient(to right, #FFFFFF 0%, rgba(255,255,255,0.9) 12%, rgba(255,255,255,0.42) 26%, rgba(255,255,255,0.05) 44%, transparent 100%)',
-          pointerEvents: 'none',
-        }} />
-        {/* Top/bottom vignette */}
-        <div aria-hidden="true" style={{
-          position: 'absolute', inset: 0,
-          background: 'linear-gradient(to bottom, rgba(255,255,255,0.18) 0%, transparent 10%, transparent 88%, rgba(255,255,255,0.22) 100%)',
-          pointerEvents: 'none',
-        }} />
-      </div>
-
-      {/* Radial accent */}
+      {/* Background radial accent */}
       <div style={{
-        position: 'absolute', inset: 0,
-        background: 'radial-gradient(ellipse 60% 70% at 15% 40%, rgba(61,74,49,0.055) 0%, transparent 65%)',
+        position: 'absolute',
+        top: '20%',
+        left: '10%',
+        width: '600px',
+        height: '600px',
+        background: 'radial-gradient(circle, rgba(61,74,49,0.06) 0%, transparent 70%)',
         pointerEvents: 'none',
         zIndex: 0,
       }} />
 
-      {/* ─────────────────────────────────────────────────────────────────────
-          DESKTOP ONLY — 4 floating badges orbiting the laptop
-          Two-wrapper trick: outer motion.div = entrance; inner div = CSS float
-      ──────────────────────────────────────────────────────────────────────── */}
-      {BADGES.map((b, i) => (
-        <motion.div
-          key={i}
-          className="hero-badge-desktop"
-          initial={{ opacity: 0, scale: 0.82 }}
-          animate={{ opacity: 1, scale: 1 }}
-          transition={{ delay: 1.3 + i * 0.18, duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
-          style={{
-            position: 'absolute',
-            bottom: BADGE_POS[i].bottom,
-            right:  BADGE_POS[i].right,
-            zIndex: 3,
-          }}
-        >
-          <div style={{
-            animation: `${b.anim} ${b.dur} ease-in-out infinite`,
-            animationDelay: b.delay,
-          }}>
-            <FloatBadge
-              icon={b.icon}
-              title={b.title}
-              subtitle={b.subtitle}
-              iconBg={b.iconBg}
-              size="md"
-            />
-          </div>
-        </motion.div>
-      ))}
-
-      {/* ─────────────────────────────────────────────────────────────────────
-          MAIN CONTENT WRAPPER
-      ──────────────────────────────────────────────────────────────────────── */}
       <div style={{
         position: 'relative',
         zIndex: 1,
         width: '100%',
-        display: 'flex',
-        flexDirection: 'column',
-        justifyContent: 'center',
-        paddingTop: '100px',
-        paddingBottom: '80px',
+        maxWidth: '1200px',
+        margin: '0 auto',
+        padding: '0 24px',
       }}>
         <div
           className="hero-grid"
           style={{
-            maxWidth: '1200px',
-            width: '100%',
-            margin: '0 auto',
-            padding: '0 24px',
             display: 'grid',
-            gridTemplateColumns: '1fr 1fr',
-            gap: '0',
+            gridTemplateColumns: '1.1fr 0.9fr',
+            gap: '56px',
             alignItems: 'center',
           }}
         >
@@ -284,35 +169,13 @@ const Hero = () => {
             variants={containerVariants}
             initial="hidden"
             animate="visible"
-            style={{ paddingRight: '32px' }}
           >
-            {/* Badge */}
-            <motion.div variants={itemVariants} style={{ marginBottom: '28px' }}>
-              <span style={{
-                display: 'inline-flex',
-                alignItems: 'center',
-                gap: '8px',
-                padding: '7px 16px',
-                borderRadius: '100px',
-                fontFamily: "'Inter', sans-serif",
-                fontSize: '12px',
-                fontWeight: 500,
-                color: '#ffffff',
-                letterSpacing: '0.06em',
-                textTransform: 'uppercase',
-                background: '#0B0B0B',
-              }}>
-                <span style={{ width: '6px', height: '6px', borderRadius: '50%', background: '#6aad5b', display: 'inline-block', animation: 'badge-blink 2.5s ease-in-out infinite', flexShrink: 0 }} />
-                Estudio de Diseño Web · Perú
-              </span>
-            </motion.div>
-
             {/* H1 */}
             <motion.h1
               variants={itemVariants}
               style={{
                 fontFamily: "'Space Grotesk', sans-serif",
-                fontSize: 'clamp(36px, 5vw, 64px)',
+                fontSize: 'clamp(36px, 5.2vw, 64px)',
                 fontWeight: 700,
                 lineHeight: 1.08,
                 letterSpacing: '-0.02em',
@@ -355,7 +218,7 @@ const Hero = () => {
                 fontWeight: 400,
                 color: '#444',
                 lineHeight: 1.65,
-                maxWidth: '500px',
+                maxWidth: '520px',
                 marginBottom: '40px',
               }}
             >
@@ -366,7 +229,7 @@ const Hero = () => {
             {/* CTAs */}
             <motion.div
               variants={itemVariants}
-              style={{ display: 'flex', gap: '12px', flexWrap: 'wrap', marginBottom: '48px' }}
+              style={{ display: 'flex', gap: '14px', flexWrap: 'wrap' }}
             >
               <motion.a
                 href="#contacto"
@@ -374,12 +237,18 @@ const Hero = () => {
                 whileTap={{ scale: 0.97 }}
                 transition={{ duration: 0.2 }}
                 style={{
-                  display: 'inline-flex', alignItems: 'center', gap: '8px',
-                  padding: '14px 28px',
-                  background: '#0B0B0B', color: '#fff',
-                  borderRadius: '8px', textDecoration: 'none',
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  gap: '8px',
+                  padding: '15px 30px',
+                  background: '#0B0B0B',
+                  color: '#fff',
+                  borderRadius: '8px',
+                  textDecoration: 'none',
                   fontFamily: "'Space Grotesk', sans-serif",
-                  fontSize: '15px', fontWeight: 600, letterSpacing: '0.01em',
+                  fontSize: '15px',
+                  fontWeight: 600,
+                  letterSpacing: '0.01em',
                   border: '1px solid #0B0B0B',
                 }}
               >
@@ -395,12 +264,18 @@ const Hero = () => {
                 whileTap={{ scale: 0.97 }}
                 transition={{ duration: 0.2 }}
                 style={{
-                  display: 'inline-flex', alignItems: 'center', gap: '8px',
-                  padding: '14px 28px',
-                  background: '#fff', color: '#0B0B0B',
-                  borderRadius: '8px', textDecoration: 'none',
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  gap: '8px',
+                  padding: '15px 30px',
+                  background: '#fff',
+                  color: '#0B0B0B',
+                  borderRadius: '8px',
+                  textDecoration: 'none',
                   fontFamily: "'Space Grotesk', sans-serif",
-                  fontSize: '15px', fontWeight: 600, letterSpacing: '0.01em',
+                  fontSize: '15px',
+                  fontWeight: 600,
+                  letterSpacing: '0.01em',
                   border: '1px solid rgba(0,0,0,0.15)',
                 }}
               >
@@ -408,113 +283,51 @@ const Hero = () => {
                 WhatsApp
               </motion.a>
             </motion.div>
+          </motion.div>
 
-            {/* Stats Row */}
-            <motion.div
-              variants={itemVariants}
-              style={{ display: 'flex', gap: '12px', flexWrap: 'wrap' }}
-            >
-              <StatCard value={75} suffix="%" label="juzgan credibilidad por diseño web" delay={0.7} />
-              <StatCard value={94} suffix="%" label="primeras impresiones por diseño visual" delay={0.82} />
-              {/* Static stat */}
-              <motion.div
-                initial={{ opacity: 0, y: 30 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.94, duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
-                style={{
-                  flex: '1 1 160px',
-                  padding: '22px 20px',
-                  background: 'rgba(255,255,255,0.7)',
-                  backdropFilter: 'blur(12px)',
-                  border: '1px solid rgba(0,0,0,0.08)',
-                  borderRadius: '12px',
-                  textAlign: 'center',
-                  position: 'relative',
-                  overflow: 'hidden',
-                }}
-                className="stat-card"
-              >
-                <div style={{ position: 'absolute', top: 0, left: '20%', right: '20%', height: '2px', background: '#3D4A31', borderRadius: '0 0 2px 2px' }} />
-                <div style={{ fontFamily: "'Space Grotesk', sans-serif", fontSize: 'clamp(28px, 4vw, 44px)', fontWeight: 700, color: '#0B0B0B', lineHeight: 1, marginBottom: '8px' }}>
-                  0.05 s
-                </div>
-                <p style={{ fontFamily: "'Inter', sans-serif", fontSize: '12px', fontWeight: 400, color: '#555', lineHeight: 1.5, maxWidth: '180px', margin: '0 auto' }}>
-                  para formarse una opinión sobre tu web
-                </p>
-              </motion.div>
-            </motion.div>
+          {/* ── RIGHT: Modern Data / Statistics Column ── */}
+          <div className="hero-stats-col" style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+            <RightStatCard
+              icon={BarChart3}
+              value={75}
+              suffix="%"
+              label="juzgan la credibilidad de un negocio por su diseño web"
+              delay={0.3}
+            />
 
-            {/* Stanford source */}
+            <RightStatCard
+              icon={Eye}
+              value={94}
+              suffix="%"
+              label="de las primeras impresiones están relacionadas al diseño visual"
+              delay={0.45}
+            />
+
+            <RightStatCard
+              icon={Zap}
+              isStatic
+              staticValue="0.05 seg"
+              label="toma hacer una opinión sobre tu web"
+              delay={0.6}
+            />
+
+            {/* Stanford source footnote */}
             <motion.p
-              variants={itemVariants}
-              style={{ marginTop: '16px', fontFamily: "'Inter', sans-serif", fontSize: '11px', color: '#999', letterSpacing: '0.03em' }}
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ delay: 0.75, duration: 0.5 }}
+              style={{
+                fontFamily: "'Inter', sans-serif",
+                fontSize: '11.5px',
+                color: '#888',
+                letterSpacing: '0.02em',
+                textAlign: 'right',
+                margin: '4px 4px 0 0',
+              }}
             >
               Fuente: Estudio de Credibilidad Web — Stanford University
             </motion.p>
-          </motion.div>
-
-          {/* ── RIGHT: Mobile-only image block (hidden on desktop via CSS) ── */}
-          <motion.div
-            className="hero-image-mobile"
-            initial={{ opacity: 0, y: 24 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.35, duration: 0.75, ease: [0.22, 1, 0.36, 1] }}
-            style={{
-              display: 'none',         /* CSS shows this on mobile */
-              position: 'relative',
-              width: '100%',
-              height: '320px',
-              borderRadius: '20px',
-              overflow: 'hidden',
-            }}
-          >
-            <img
-              src="/hero-person.png"
-              alt="Profesional trabajando en su laptop"
-              style={{
-                width: '100%', height: '100%',
-                objectFit: 'cover',
-                objectPosition: '60% top',
-                display: 'block',
-                borderRadius: '20px',
-              }}
-            />
-
-            {/* Mobile badge 1 — top-left (Más clientes) */}
-            <div style={{
-              position: 'absolute', top: '16px', left: '12px', zIndex: 2,
-              animation: 'badge-float-1 3.4s ease-in-out infinite',
-            }}>
-              <FloatBadge icon="📈" title="Más clientes" subtitle="desde el primer mes" iconBg="rgba(61,74,49,0.1)" size="sm" />
-            </div>
-
-            {/* Mobile badge 2 — middle-right (Mayor alcance) */}
-            <div style={{
-              position: 'absolute', top: '76px', right: '12px', zIndex: 2,
-              animation: 'badge-float-3 3.8s ease-in-out infinite',
-              animationDelay: '0.9s',
-            }}>
-              <FloatBadge icon="🚀" title="Mayor alcance" subtitle="en tu sector" iconBg="rgba(239,68,68,0.09)" size="sm" />
-            </div>
-
-            {/* Mobile badge 3 — middle-left (Más presencia) */}
-            <div style={{
-              position: 'absolute', bottom: '76px', left: '12px', zIndex: 2,
-              animation: 'badge-float-2 4.2s ease-in-out infinite',
-              animationDelay: '0.4s',
-            }}>
-              <FloatBadge icon="🌐" title="Más presencia" subtitle="en tu mercado" iconBg="rgba(59,130,246,0.1)" size="sm" />
-            </div>
-
-            {/* Mobile badge 4 — bottom-right (Confianza) */}
-            <div style={{
-              position: 'absolute', bottom: '16px', right: '12px', zIndex: 2,
-              animation: 'badge-float-1 3.6s ease-in-out infinite',
-              animationDelay: '1.5s',
-            }}>
-              <FloatBadge icon="⭐" title="Confianza" subtitle="en tu negocio" iconBg="rgba(245,158,11,0.1)" size="sm" />
-            </div>
-          </motion.div>
+          </div>
         </div>
       </div>
 
@@ -522,10 +335,10 @@ const Hero = () => {
       <motion.div
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
-        transition={{ delay: 1.8, duration: 0.6 }}
+        transition={{ delay: 1.2, duration: 0.6 }}
         style={{
           position: 'absolute',
-          bottom: '28px',
+          bottom: '24px',
           left: '50%',
           transform: 'translateX(-50%)',
           display: 'flex',
@@ -541,64 +354,28 @@ const Hero = () => {
         </span>
         <div style={{
           width: '1px',
-          height: '36px',
+          height: '32px',
           background: 'linear-gradient(to bottom, #3D4A31, transparent)',
           animation: 'scroll-line 1.8s ease-in-out infinite',
         }} />
       </motion.div>
 
       <style>{`
-        @keyframes badge-blink {
-          0%, 100% { opacity: 1; }
-          50% { opacity: 0.4; }
-        }
-        /* Three float phases — staggered for orbital feel */
-        @keyframes badge-float-1 {
-          0%, 100% { transform: translateY(0px);   }
-          50%       { transform: translateY(-9px);  }
-        }
-        @keyframes badge-float-2 {
-          0%, 100% { transform: translateY(0px);  }
-          50%       { transform: translateY(7px); }
-        }
-        @keyframes badge-float-3 {
-          0%, 100% { transform: translateY(0px);  }
-          50%       { transform: translateY(-6px); }
-        }
         @keyframes scroll-line {
           0%   { transform: scaleY(0); transform-origin: top;    opacity: 1; }
           50%  { transform: scaleY(1); transform-origin: top;    opacity: 1; }
           51%  { transform: scaleY(1); transform-origin: bottom; opacity: 1; }
           100% { transform: scaleY(0); transform-origin: bottom; opacity: 0; }
         }
-        .stat-card:hover {
-          border-color: rgba(61,74,49,0.25) !important;
-          box-shadow: 0 8px 32px rgba(61,74,49,0.08);
-          transition: border-color 0.25s, box-shadow 0.25s;
-        }
 
-        /* ── Mobile ─────────────────────────────────────────────────────── */
+        /* Responsive layout */
         @media (max-width: 900px) {
           .hero-grid {
             grid-template-columns: 1fr !important;
-            gap: 36px !important;
+            gap: 48px !important;
           }
-          .hero-text-col {
-            padding-right: 0 !important;
-          }
-          .hero-image-desktop,
-          .hero-badge-desktop {
-            display: none !important;
-          }
-          .hero-image-mobile {
-            display: block !important;
-          }
-        }
-
-        /* Very small screens — shrink badges a bit */
-        @media (max-width: 400px) {
-          .hero-image-mobile {
-            height: 270px !important;
+          .hero-stats-col {
+            margin-top: 12px;
           }
         }
       `}</style>
